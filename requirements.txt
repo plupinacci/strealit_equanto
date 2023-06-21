@@ -1,5 +1,5 @@
+numpy
 altair
 pandas
 streamlit
 prophet
-PIL

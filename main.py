@@ -155,6 +155,8 @@ def load_modelo_sell_in(selectbox_modelo):
            modelos_em_memoria_sell_out[selectbox_modelo]['plot_padrao']['fig2']
 
 
+
+
 def main():
     arquivos_excel = [""]
 
