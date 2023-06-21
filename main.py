@@ -419,12 +419,5 @@ def main():
 
 
 if __name__ == "__main__":
-
-    for file_name in os.listdir(get_absolute_path_modelo_dir()):
-        if not file_name.__contains__('.xlsx'):
-            print(file_name)
-
-    # print(os.listdir(get_absolute_path_modelo_dir()))
-
-    # popupate_dicts_modelos_metricas()
-    # main()
+    popupate_dicts_modelos_metricas()
+    main()
