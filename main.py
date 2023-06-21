@@ -66,9 +66,40 @@ def get_modelo_previsao(modelo, tipo, semanas):
 
     frame = frame.loc[:, ['ds', 'trend', 'yhat_lower', 'yhat_upper', 'yhat']]
     frame = frame.rename(columns={'ds': 'Semana', 'yhat': 'Vendas', 'yhat_lower': 'Mínimo', 'yhat_upper': 'Máximo'})
-    frame['Semana'] = frame['Semana'].dt.('%d/%m/%Y')
+    frame['Semana'] = pd.to_datetime(frame['Semana'].dt.strftime('%d/%m/%Y'))
 
     return frame
+
+
+def plot_predictions(frame):
+    chart_vendas = alt.Chart(frame, height=500, width=1000).mark_circle(size=40, color='red') \
+        .encode(
+        x='Semana',
+        y='Vendas'
+    ).interactive()
+
+    # Create the line chart
+    chart_lim_inf = alt.Chart(frame).mark_line(color='green', interpolate="natural", strokeWidth=1).encode(
+        x='Semana',
+        y='Mínimo'
+    ).interactive()
+
+    # Create the line chart
+    chart_lim_max = alt.Chart(frame).mark_line(color='black',
+                                               interpolate="natural", strokeWidth=1).encode(
+        x='Semana',
+        y='Máximo'
+    ).interactive()
+
+    # Create the line chart
+    chart_lim_trend = alt.Chart(frame).mark_line(color='orange',
+                                                 interpolate="natural", strokeWidth=1.2, strokeDash=(8, 8)).encode(
+        x='Semana',
+        y='trend'
+    ).interactive()
+
+    chart_combined = alt.layer(chart_vendas, chart_lim_inf, chart_lim_max, chart_lim_trend)
+    st.altair_chart(chart_combined, theme=None)
 
 
 def get_previsao(modelo, semanas, dict_modelo):
@@ -153,7 +184,8 @@ def main():
             df_excel_sell_out = pd.read_excel(get_path_planilha(selectbox_arquivo), sheet_name='Sell Out',
                                               engine='openpyxl')
             df_excel_sell_out_renamed = df_excel_sell_out.rename(columns={'ds': 'Semana', 'y': 'Qnt. Vendas'})
-            df_excel_sell_out_renamed['Semana'] = df_excel_sell_out_renamed['Semana'].dt.strftime('%d/%m/%Y')
+            df_excel_sell_out_renamed['Semana'] = pd.to_datetime(
+                df_excel_sell_out_renamed['Semana'].dt.strftime('%d/%m/%Y'))
             st.dataframe(df_excel_sell_out_renamed, height=600, width=500, hide_index=True)
 
     with tab2:
@@ -161,7 +193,8 @@ def main():
             df_excel_sell_in = pd.read_excel(get_path_planilha(selectbox_arquivo), sheet_name='Sell in',
                                              engine='openpyxl')
             df_excel_sell_in_renamed = df_excel_sell_in.rename(columns={'ds': 'Semana', 'y': 'Qnt. Vendas'})
-            df_excel_sell_in_renamed['Semana'] = df_excel_sell_in_renamed['Semana'].dt.strftime('%d/%m/%Y')
+            df_excel_sell_in_renamed['Semana'] = pd.to_datetime(
+                df_excel_sell_in_renamed['Semana'].dt.strftime('%d/%m/%Y'))
             st.dataframe(df_excel_sell_in, height=600, width=500, hide_index=True)
 
     with tab3:
@@ -171,7 +204,8 @@ def main():
                                                   engine='openpyxl')
                 df_excel_folhetos_renamed = df_excel_folhetos.rename(
                     columns={'holiday': 'Nome Folheto', 'ds': 'Semana', 'upper_window': 'Dur. Sem'})
-                df_excel_folhetos_renamed['Semana'] = df_excel_folhetos_renamed['Semana'].dt.strftime('%d/%m/%Y')
+                df_excel_folhetos_renamed['Semana'] = pd.to_datetime(
+                    df_excel_folhetos_renamed['Semana'].dt.strftime('%d/%m/%Y'))
                 df_excel_folhetos_renamed = df_excel_folhetos_renamed.drop(columns=['lower_window'])
                 st.dataframe(df_excel_folhetos_renamed, height=300, width=500, hide_index=True)
             except ValueError:
@@ -245,18 +279,9 @@ def main():
                     y='Incerteza - Máx'
                 ).interactive()
 
-                # Create the line chart
-                chart5 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='black',
-                                                                                    interpolate="natural",
-                                                                                    strokeDash=[10, 10]).encode(
-                    x='Corte'
-
-                ).interactive()
-
                 chart_combined = alt.layer(chart1, chart2)
                 chart_combined = alt.layer(chart_combined, chart3)
                 chart_combined = alt.layer(chart_combined, chart4)
-                # chart_combined = alt.layer(chart_combined, chart5)
 
                 st.altair_chart(chart_combined, theme=None)
 
@@ -282,10 +307,10 @@ def main():
                 metricas_sell_in_frame_cross_renamed = metricas_sell_in_frame_cross.rename(
                     columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
                              'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
-                metricas_sell_in_frame_cross_renamed['Semana'] = metricas_sell_in_frame_cross_renamed[
-                    'Semana'].dt.strftime('%d/%m/%Y')
-                metricas_sell_in_frame_cross_renamed['Corte'] = metricas_sell_in_frame_cross_renamed[
-                    'Corte'].dt.strftime('%d/%m/%Y')
+                metricas_sell_in_frame_cross_renamed['Semana'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
+                                                                                    'Semana'].dt.strftime('%d/%m/%Y'))
+                metricas_sell_in_frame_cross_renamed['Corte'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
+                                                                                   'Corte'].dt.strftime('%d/%m/%Y'))
 
                 chart1 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
                                                                                                             color='red') \
@@ -354,33 +379,40 @@ def main():
     with tab_sell_out_prev:
         if selectbox_modelo_previsao:
             if radio_modelo_previsao == 12:
-                st.write('cacete')
-
                 frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 12)
                 plot_predictions(frame)
                 st.dataframe(frame, height=600, width=700, hide_index=True)
-
-
             elif radio_modelo_previsao == 18:
-                st.write('cacete')
-                get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
+                plot_predictions(frame)
                 st.dataframe(frame, height=600, width=700, hide_index=True)
             elif radio_modelo_previsao == 24:
-                st.write('cacete')
-                get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
             elif radio_modelo_previsao == 32:
-                st.write('cacete')
-                get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
 
-
-def plot_predictions(frame):
-    chart_vendas = alt.Chart(frame, height=500, width=1000).mark_circle(size=40, color='red') \
-        .encode(
-        x='Semana',
-        y='Vendas'
-    ).interactive()
-    st.altair_chart(chart_vendas, theme=None)
-
+    with tab_sell_in_prev:
+        if selectbox_modelo_previsao:
+            if radio_modelo_previsao == 12:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 12)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 18:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 18)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 24:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 24)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 32:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 32)
+                plot_predictions(frame)
+                st.dataframe(frame, height=600, width=700, hide_index=True)
 
 
 if __name__ == "__main__":
