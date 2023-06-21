@@ -18,7 +18,7 @@ def get_arquivos_modelo():
     arquivos_modelo = []
     arquivos_modelo.insert(0, '')
     for file_name in os.listdir(get_absolute_path_modelo_dir()):
-        if not (file_name.__contains__('.xlsx') | file_name.__contains__('.png')) :
+        if not (file_name.__contains__('.xlsx') | file_name.__contains__('.png')):
             arquivos_modelo.append(file_name)
         arquivos_modelo = sorted(arquivos_modelo)
     return arquivos_modelo
@@ -193,8 +193,7 @@ def main():
             df_excel_sell_out = pd.read_excel(get_path_planilha(selectbox_arquivo), sheet_name='Sell Out',
                                               engine='openpyxl')
             df_excel_sell_out_renamed = df_excel_sell_out.rename(columns={'ds': 'Semana', 'y': 'Qnt. Vendas'})
-            df_excel_sell_out_renamed['Semana'] = pd.to_datetime(
-                df_excel_sell_out_renamed['Semana'].dt.strftime('%d/%m/%Y'))
+            df_excel_sell_out_renamed['Semana'] = df_excel_sell_out_renamed['Semana'].dt.strftime('%d/%m/%Y')
             st.dataframe(df_excel_sell_out_renamed, height=600, width=500, hide_index=True)
 
     with tab2:
@@ -202,8 +201,7 @@ def main():
             df_excel_sell_in = pd.read_excel(get_path_planilha(selectbox_arquivo), sheet_name='Sell in',
                                              engine='openpyxl')
             df_excel_sell_in_renamed = df_excel_sell_in.rename(columns={'ds': 'Semana', 'y': 'Qnt. Vendas'})
-            df_excel_sell_in_renamed['Semana'] = pd.to_datetime(
-                df_excel_sell_in_renamed['Semana'].dt.strftime('%d/%m/%Y'))
+            df_excel_sell_in_renamed['Semana'] = df_excel_sell_in_renamed['Semana'].dt.strftime('%d/%m/%Y')
             st.dataframe(df_excel_sell_in, height=600, width=500, hide_index=True)
 
     with tab3:
@@ -213,8 +211,7 @@ def main():
                                                   engine='openpyxl')
                 df_excel_folhetos_renamed = df_excel_folhetos.rename(
                     columns={'holiday': 'Nome Folheto', 'ds': 'Semana', 'upper_window': 'Dur. Sem'})
-                df_excel_folhetos_renamed['Semana'] = pd.to_datetime(
-                    df_excel_folhetos_renamed['Semana'].dt.strftime('%d/%m/%Y'))
+                df_excel_folhetos_renamed['Semana'] = df_excel_folhetos_renamed['Semana'].dt.strftime('%d/%m/%Y')
                 df_excel_folhetos_renamed = df_excel_folhetos_renamed.drop(columns=['lower_window'])
                 st.dataframe(df_excel_folhetos_renamed, height=300, width=500, hide_index=True)
             except ValueError:
