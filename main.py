@@ -214,205 +214,205 @@ def main():
     st.sidebar.write('_______________')
     st.write('___________________________________________________________________________')
 
-    arquivos_modelo = os.listdir(get_absolute_path_modelo_dir())
-    arquivos_modelo.insert(0, '')
-    arquivos_modelo = sorted(arquivos_modelo)
-    selectbox_modelo = st.sidebar.selectbox("Selecione o modelo", arquivos_modelo, key='selectbox_modelo_key')
-
-    tab_sell_out, tab_sell_in = st.tabs(["Sell Out", "Sell In"])
-
-    with tab_sell_out:
-        if selectbox_modelo:
-            tab_modelo_sell_out, tab_metricas_sell_out = st.tabs(["Modelo - Sell Out", "Métricas - Sell Out"])
-
-            with tab_modelo_sell_out:
-                m, fig1, fig2 = load_modelo_sell_out(selectbox_modelo)
-                st.pyplot(fig1)
-                st.pyplot(fig2)
-
-            with tab_metricas_sell_out:
-                metricas_sell_out_frame_cross = pd.read_excel(metricas[selectbox_modelo]['sell_out'],
-                                                              sheet_name='Cross Validation', engine='openpyxl')
-                metricas_sell_out_frame_metrics = pd.read_excel(metricas[selectbox_modelo]['sell_out'],
-                                                                sheet_name='Performance Metrics', engine='openpyxl')
-
-                metricas_sell_out_frame_cross_renamed = metricas_sell_out_frame_cross.rename(
-                    columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
-                             'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
-                metricas_sell_out_frame_cross_renamed['Semana'] = metricas_sell_out_frame_cross_renamed[
-                    'Semana'].dt.strftime('%d/%m/%Y')
-                metricas_sell_out_frame_cross_renamed['Corte'] = metricas_sell_out_frame_cross_renamed[
-                    'Corte'].dt.strftime('%d/%m/%Y')
-
-                chart1 = alt.Chart(metricas_sell_out_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
-                                                                                                             color='red') \
-                    .encode(
-                    x='Semana',
-                    y='Vendas - Real'
-                ).interactive()
-
-                chart2 = alt.Chart(metricas_sell_out_frame_cross_renamed, height=500, width=700).mark_square(size=40,
-                                                                                                             color='blue') \
-                    .encode(
-                    x='Semana',
-                    y='Vendas - Previsão'
-                ).interactive()
-
-                # Create the line chart
-                chart3 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='green',
-                                                                                    interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Mín'
-                ).interactive()
-
-                # Create the line chart
-                chart4 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='black',
-                                                                                    interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Máx'
-                ).interactive()
-
-                # Create the line chart
-                chart4 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='black',
-                                                                                    interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Máx'
-                ).interactive()
-
-                chart_combined = alt.layer(chart1, chart2)
-                chart_combined = alt.layer(chart_combined, chart3)
-                chart_combined = alt.layer(chart_combined, chart4)
-
-                st.altair_chart(chart_combined, theme=None)
-
-                st.dataframe(metricas_sell_out_frame_cross_renamed, height=600, width=700, hide_index=True)
-                st.write('___________________________________________________________________________')
-                st.dataframe(metricas_sell_out_frame_metrics, height=500, width=500, hide_index=True)
-
-    with tab_sell_in:
-        if selectbox_modelo:
-            tab_modelo_sell_in, tab_metricas_sell_in = st.tabs(["Modelo - Sell In", "Métricas - Sell In"])
-
-            with tab_modelo_sell_in:
-                m, fig1, fig2 = load_modelo_sell_in(selectbox_modelo)
-                st.pyplot(fig1)
-                st.pyplot(fig2, )
-
-            with tab_metricas_sell_in:
-                metricas_sell_in_frame_cross = pd.read_excel(metricas[selectbox_modelo]['sell_in'],
-                                                             sheet_name='Cross Validation', engine='openpyxl')
-                metricas_sell_in_frame_metrics = pd.read_excel(metricas[selectbox_modelo]['sell_in'],
-                                                               sheet_name='Performance Metrics', engine='openpyxl')
-
-                metricas_sell_in_frame_cross_renamed = metricas_sell_in_frame_cross.rename(
-                    columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
-                             'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
-                metricas_sell_in_frame_cross_renamed['Semana'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
-                                                                                    'Semana'].dt.strftime('%d/%m/%Y'))
-                metricas_sell_in_frame_cross_renamed['Corte'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
-                                                                                   'Corte'].dt.strftime('%d/%m/%Y'))
-
-                chart1 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
-                                                                                                            color='red') \
-                    .encode(
-                    x='Semana',
-                    y='Vendas - Real'
-                ).interactive()
-
-                chart2 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_square(size=40,
-                                                                                                            color='blue') \
-                    .encode(
-                    x='Semana',
-                    y='Vendas - Previsão'
-                ).interactive()
-
-                # Create the line chart
-                chart3 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='green',
-                                                                                   interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Mín'
-                ).interactive()
-
-                # Create the line chart
-                chart4 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
-                                                                                   interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Máx'
-                ).interactive()
-
-                # Create the line chart
-                chart4 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
-                                                                                   interpolate="natural").encode(
-                    x='Semana',
-                    y='Incerteza - Máx'
-                ).interactive()
-
-                # Create the line chart
-                chart5 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
-                                                                                   interpolate="natural",
-                                                                                   strokeDash=[10, 10]).encode(
-                    x='Corte'
-
-                ).interactive()
-
-                chart_combined = alt.layer(chart1, chart2)
-                chart_combined = alt.layer(chart_combined, chart3)
-                chart_combined = alt.layer(chart_combined, chart4)
-                # chart_combined = alt.layer(chart_combined, chart5)
-
-                st.altair_chart(chart_combined, theme=None)
-
-                st.dataframe(metricas_sell_in_frame_cross_renamed, height=600, width=700, hide_index=True)
-                st.write('___________________________________________________________________________')
-                st.dataframe(metricas_sell_in_frame_metrics, height=500, width=500, hide_index=True)
-
-    st.sidebar.write('_______________')
-    st.write('___________________________________________________________________________')
-
-    selectbox_modelo_previsao = st.sidebar.selectbox("Selecione o modelo para previsões", arquivos_modelo,
-                                                     key='selectbox_modelo_previsao_key')
-
-    radio_modelo_previsao = st.sidebar.radio("Selecione Semanas", [12, 18, 24, 32], key="previsao")
-
-    tab_sell_out_prev, tab_sell_in_prev = st.tabs(["Sell Out", "Sell In"])
-
-    with tab_sell_out_prev:
-        if selectbox_modelo_previsao:
-            if radio_modelo_previsao == 12:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 12)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 18:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 24:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 32:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-
-    with tab_sell_in_prev:
-        if selectbox_modelo_previsao:
-            if radio_modelo_previsao == 12:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 12)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 18:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 18)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 24:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 24)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
-            elif radio_modelo_previsao == 32:
-                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 32)
-                plot_predictions(frame)
-                st.dataframe(frame, height=600, width=700, hide_index=True)
+    # arquivos_modelo = os.listdir(get_absolute_path_modelo_dir())
+    # arquivos_modelo.insert(0, '')
+    # arquivos_modelo = sorted(arquivos_modelo)
+    # selectbox_modelo = st.sidebar.selectbox("Selecione o modelo", arquivos_modelo, key='selectbox_modelo_key')
+    #
+    # tab_sell_out, tab_sell_in = st.tabs(["Sell Out", "Sell In"])
+    #
+    # with tab_sell_out:
+    #     if selectbox_modelo:
+    #         tab_modelo_sell_out, tab_metricas_sell_out = st.tabs(["Modelo - Sell Out", "Métricas - Sell Out"])
+    #
+    #         with tab_modelo_sell_out:
+    #             m, fig1, fig2 = load_modelo_sell_out(selectbox_modelo)
+    #             st.pyplot(fig1)
+    #             st.pyplot(fig2)
+    #
+    #         with tab_metricas_sell_out:
+    #             metricas_sell_out_frame_cross = pd.read_excel(metricas[selectbox_modelo]['sell_out'],
+    #                                                           sheet_name='Cross Validation', engine='openpyxl')
+    #             metricas_sell_out_frame_metrics = pd.read_excel(metricas[selectbox_modelo]['sell_out'],
+    #                                                             sheet_name='Performance Metrics', engine='openpyxl')
+    #
+    #             metricas_sell_out_frame_cross_renamed = metricas_sell_out_frame_cross.rename(
+    #                 columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
+    #                          'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
+    #             metricas_sell_out_frame_cross_renamed['Semana'] = metricas_sell_out_frame_cross_renamed[
+    #                 'Semana'].dt.strftime('%d/%m/%Y')
+    #             metricas_sell_out_frame_cross_renamed['Corte'] = metricas_sell_out_frame_cross_renamed[
+    #                 'Corte'].dt.strftime('%d/%m/%Y')
+    #
+    #             chart1 = alt.Chart(metricas_sell_out_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
+    #                                                                                                          color='red') \
+    #                 .encode(
+    #                 x='Semana',
+    #                 y='Vendas - Real'
+    #             ).interactive()
+    #
+    #             chart2 = alt.Chart(metricas_sell_out_frame_cross_renamed, height=500, width=700).mark_square(size=40,
+    #                                                                                                          color='blue') \
+    #                 .encode(
+    #                 x='Semana',
+    #                 y='Vendas - Previsão'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart3 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='green',
+    #                                                                                 interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Mín'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart4 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='black',
+    #                                                                                 interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Máx'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart4 = alt.Chart(metricas_sell_out_frame_cross_renamed).mark_line(color='black',
+    #                                                                                 interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Máx'
+    #             ).interactive()
+    #
+    #             chart_combined = alt.layer(chart1, chart2)
+    #             chart_combined = alt.layer(chart_combined, chart3)
+    #             chart_combined = alt.layer(chart_combined, chart4)
+    #
+    #             st.altair_chart(chart_combined, theme=None)
+    #
+    #             st.dataframe(metricas_sell_out_frame_cross_renamed, height=600, width=700, hide_index=True)
+    #             st.write('___________________________________________________________________________')
+    #             st.dataframe(metricas_sell_out_frame_metrics, height=500, width=500, hide_index=True)
+    #
+    # with tab_sell_in:
+    #     if selectbox_modelo:
+    #         tab_modelo_sell_in, tab_metricas_sell_in = st.tabs(["Modelo - Sell In", "Métricas - Sell In"])
+    #
+    #         with tab_modelo_sell_in:
+    #             m, fig1, fig2 = load_modelo_sell_in(selectbox_modelo)
+    #             st.pyplot(fig1)
+    #             st.pyplot(fig2, )
+    #
+    #         with tab_metricas_sell_in:
+    #             metricas_sell_in_frame_cross = pd.read_excel(metricas[selectbox_modelo]['sell_in'],
+    #                                                          sheet_name='Cross Validation', engine='openpyxl')
+    #             metricas_sell_in_frame_metrics = pd.read_excel(metricas[selectbox_modelo]['sell_in'],
+    #                                                            sheet_name='Performance Metrics', engine='openpyxl')
+    #
+    #             metricas_sell_in_frame_cross_renamed = metricas_sell_in_frame_cross.rename(
+    #                 columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
+    #                          'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
+    #             metricas_sell_in_frame_cross_renamed['Semana'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
+    #                                                                                 'Semana'].dt.strftime('%d/%m/%Y'))
+    #             metricas_sell_in_frame_cross_renamed['Corte'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
+    #                                                                                'Corte'].dt.strftime('%d/%m/%Y'))
+    #
+    #             chart1 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
+    #                                                                                                         color='red') \
+    #                 .encode(
+    #                 x='Semana',
+    #                 y='Vendas - Real'
+    #             ).interactive()
+    #
+    #             chart2 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_square(size=40,
+    #                                                                                                         color='blue') \
+    #                 .encode(
+    #                 x='Semana',
+    #                 y='Vendas - Previsão'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart3 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='green',
+    #                                                                                interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Mín'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart4 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
+    #                                                                                interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Máx'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart4 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
+    #                                                                                interpolate="natural").encode(
+    #                 x='Semana',
+    #                 y='Incerteza - Máx'
+    #             ).interactive()
+    #
+    #             # Create the line chart
+    #             chart5 = alt.Chart(metricas_sell_in_frame_cross_renamed).mark_line(color='black',
+    #                                                                                interpolate="natural",
+    #                                                                                strokeDash=[10, 10]).encode(
+    #                 x='Corte'
+    #
+    #             ).interactive()
+    #
+    #             chart_combined = alt.layer(chart1, chart2)
+    #             chart_combined = alt.layer(chart_combined, chart3)
+    #             chart_combined = alt.layer(chart_combined, chart4)
+    #             # chart_combined = alt.layer(chart_combined, chart5)
+    #
+    #             st.altair_chart(chart_combined, theme=None)
+    #
+    #             st.dataframe(metricas_sell_in_frame_cross_renamed, height=600, width=700, hide_index=True)
+    #             st.write('___________________________________________________________________________')
+    #             st.dataframe(metricas_sell_in_frame_metrics, height=500, width=500, hide_index=True)
+    #
+    # st.sidebar.write('_______________')
+    # st.write('___________________________________________________________________________')
+    #
+    # selectbox_modelo_previsao = st.sidebar.selectbox("Selecione o modelo para previsões", arquivos_modelo,
+    #                                                  key='selectbox_modelo_previsao_key')
+    #
+    # radio_modelo_previsao = st.sidebar.radio("Selecione Semanas", [12, 18, 24, 32], key="previsao")
+    #
+    # tab_sell_out_prev, tab_sell_in_prev = st.tabs(["Sell Out", "Sell In"])
+    #
+    # with tab_sell_out_prev:
+    #     if selectbox_modelo_previsao:
+    #         if radio_modelo_previsao == 12:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 12)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 18:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 24:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 32:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #
+    # with tab_sell_in_prev:
+    #     if selectbox_modelo_previsao:
+    #         if radio_modelo_previsao == 12:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 12)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 18:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 18)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 24:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 24)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    #         elif radio_modelo_previsao == 32:
+    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 32)
+    #             plot_predictions(frame)
+    #             st.dataframe(frame, height=600, width=700, hide_index=True)
 
 
 if __name__ == "__main__":
