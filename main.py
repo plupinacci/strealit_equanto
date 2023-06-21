@@ -14,6 +14,12 @@ modelos_em_memoria_sell_in = {}
 metricas = {}
 
 
+def get_frame_prediction_for_show(frame):
+    frame_for_show = frame.copy()
+    frame_for_show['Semana'] = frame_for_show['Semana'].dt.strftime('%d/%m/%Y')
+    return frame_for_show
+
+
 def get_arquivos_modelo():
     arquivos_modelo = []
     arquivos_modelo.insert(0, '')
@@ -75,7 +81,6 @@ def get_modelo_previsao(modelo, tipo, semanas):
 
     frame = frame.loc[:, ['ds', 'trend', 'yhat_lower', 'yhat_upper', 'yhat']]
     frame = frame.rename(columns={'ds': 'Semana', 'yhat': 'Vendas', 'yhat_lower': 'Mínimo', 'yhat_upper': 'Máximo'})
-    frame['Semana'] = pd.to_datetime(frame['Semana'].dt.strftime('%d/%m/%Y'))
 
     return frame
 
@@ -380,50 +385,50 @@ def main():
     st.sidebar.write('_______________')
     st.write('___________________________________________________________________________')
 
-    # selectbox_modelo_previsao = st.sidebar.selectbox("Selecione o modelo para previsões", get_arquivos_modelo(),
-    #                                                  key='selectbox_modelo_previsao_key')
-    #
-    # radio_modelo_previsao = st.sidebar.radio("Selecione Semanas", [12, 18, 24, 32], key="previsao")
-    #
-    # tab_sell_out_prev, tab_sell_in_prev = st.tabs(["Sell Out", "Sell In"])
-    #
-    # with tab_sell_out_prev:
-    #     if selectbox_modelo_previsao:
-    #         if radio_modelo_previsao == 12:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 12)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 18:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 24:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 32:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #
-    # with tab_sell_in_prev:
-    #     if selectbox_modelo_previsao:
-    #         if radio_modelo_previsao == 12:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 12)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 18:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 18)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 24:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 24)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
-    #         elif radio_modelo_previsao == 32:
-    #             frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 32)
-    #             plot_predictions(frame)
-    #             st.dataframe(frame, height=600, width=700, hide_index=True)
+    selectbox_modelo_previsao = st.sidebar.selectbox("Selecione o modelo para previsões", get_arquivos_modelo(),
+                                                     key='selectbox_modelo_previsao_key')
+
+    radio_modelo_previsao = st.sidebar.radio("Selecione Semanas", [12, 18, 24, 32], key="previsao")
+
+    tab_sell_out_prev, tab_sell_in_prev = st.tabs(["Sell Out", "Sell In"])
+
+    with tab_sell_out_prev:
+        if selectbox_modelo_previsao:
+            if radio_modelo_previsao == 12:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 12)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 18:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 18)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 24:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 24)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 32:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellout', 32)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+
+    with tab_sell_in_prev:
+        if selectbox_modelo_previsao:
+            if radio_modelo_previsao == 12:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 12)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 18:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 18)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 24:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 24)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
+            elif radio_modelo_previsao == 32:
+                frame = get_modelo_previsao(selectbox_modelo_previsao, 'sellin', 32)
+                plot_predictions(frame)
+                st.dataframe(get_frame_prediction_for_show(frame), height=600, width=700, hide_index=True)
 
 
 if __name__ == "__main__":
