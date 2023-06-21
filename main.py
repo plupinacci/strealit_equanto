@@ -7,8 +7,7 @@ import streamlit as st
 from PIL import Image
 from prophet.serialize import model_from_json
 
-directory_path = os.path.join(os.getcwd(), 'data', 'forecast_equanto')
-directory_path_img = os.path.join(os.getcwd(), 'data')
+directory_path = os.path.join(os.getcwd(), 'data')
 modelos = {}
 modelos_em_memoria_sell_out = {}
 modelos_em_memoria_sell_in = {}
@@ -46,7 +45,7 @@ def get_path_planilha(arquivo):
 
 
 def get_absolute_path_modelo_dir():
-    return os.path.join(directory_path, 'modelos')
+    return directory_path
 
 
 def get_path_modelo(modelo):
@@ -155,12 +154,10 @@ def load_modelo_sell_in(selectbox_modelo):
            modelos_em_memoria_sell_out[selectbox_modelo]['plot_padrao']['fig2']
 
 
-
-
 def main():
     arquivos_excel = [""]
 
-    image = Image.open(os.path.join(directory_path_img, 'img.png'))
+    image = Image.open(os.path.join(directory_path, 'img.png'))
     st.sidebar.image(image, width=300)
 
     # Primeira Parte
@@ -216,13 +213,17 @@ def main():
     st.sidebar.write('_______________')
     st.write('___________________________________________________________________________')
 
-    # arquivos_modelo = os.listdir(get_absolute_path_modelo_dir())
     # arquivos_modelo.insert(0, '')
+    #
+    # for file_name in os.listdir(get_absolute_path_modelo_dir()):
+    #     if not file_name.__contains__('.xlsx'):
+    #         arquivos_modelo.
+    #
     # arquivos_modelo = sorted(arquivos_modelo)
     # selectbox_modelo = st.sidebar.selectbox("Selecione o modelo", arquivos_modelo, key='selectbox_modelo_key')
     #
     # tab_sell_out, tab_sell_in = st.tabs(["Sell Out", "Sell In"])
-    #
+
     # with tab_sell_out:
     #     if selectbox_modelo:
     #         tab_modelo_sell_out, tab_metricas_sell_out = st.tabs(["Modelo - Sell Out", "Métricas - Sell Out"])
@@ -418,5 +419,12 @@ def main():
 
 
 if __name__ == "__main__":
-    popupate_dicts_modelos_metricas()
-    main()
+
+    for file_name in os.listdir(get_absolute_path_modelo_dir()):
+        if not file_name.__contains__('.xlsx'):
+            print(file_name)
+
+    # print(os.listdir(get_absolute_path_modelo_dir()))
+
+    # popupate_dicts_modelos_metricas()
+    # main()
