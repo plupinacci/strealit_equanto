@@ -309,11 +309,17 @@ def main():
 
                 metricas_sell_in_frame_cross_renamed = metricas_sell_in_frame_cross.rename(
                     columns={'ds': 'Semana', 'y': 'Vendas - Real', 'yhat': 'Vendas - Previsão',
-                             'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx', 'cutoff': 'Corte'})
-                metricas_sell_in_frame_cross_renamed['Semana'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
-                                                                                    'Semana'].dt.strftime('%d/%m/%Y'))
-                metricas_sell_in_frame_cross_renamed['Corte'] = pd.to_datetime(metricas_sell_in_frame_cross_renamed[
-                                                                                   'Corte'].dt.strftime('%d/%m/%Y'))
+                             'yhat_lower': 'Incerteza - Mín', 'yhat_upper': 'Incerteza - Máx'})
+
+                metricas_sell_in_frame_cross_renamed_for_show = metricas_sell_in_frame_cross_renamed.copy()
+                metricas_sell_in_frame_cross_renamed = metricas_sell_in_frame_cross_renamed.drop(columns=['cutoff'])
+
+                metricas_sell_in_frame_cross_renamed_for_show['Semana'] = metricas_sell_in_frame_cross_renamed_for_show[
+                    'Semana'].dt.strftime('%d/%m/%Y')
+                metricas_sell_in_frame_cross_renamed_for_show = metricas_sell_in_frame_cross_renamed_for_show.rename(
+                    columns={'cutoff': 'Data Corte'})
+                metricas_sell_in_frame_cross_renamed_for_show['Data Corte'] = \
+                    metricas_sell_in_frame_cross_renamed_for_show['Data Corte'].dt.strftime('%d/%m/%Y')
 
                 chart1 = alt.Chart(metricas_sell_in_frame_cross_renamed, height=500, width=700).mark_circle(size=40,
                                                                                                             color='red') \
@@ -358,14 +364,11 @@ def main():
 
                 ).interactive()
 
-                chart_combined = alt.layer(chart1, chart2)
-                chart_combined = alt.layer(chart_combined, chart3)
-                chart_combined = alt.layer(chart_combined, chart4)
-                # chart_combined = alt.layer(chart_combined, chart5)
+                chart_combined = alt.layer(chart1, chart2, chart3, chart4)
 
                 st.altair_chart(chart_combined, theme=None)
 
-                st.dataframe(metricas_sell_in_frame_cross_renamed, height=600, width=700, hide_index=True)
+                st.dataframe(metricas_sell_in_frame_cross_renamed_for_show, height=600, width=700, hide_index=True)
                 st.write('___________________________________________________________________________')
                 st.dataframe(metricas_sell_in_frame_metrics, height=500, width=500, hide_index=True)
 
